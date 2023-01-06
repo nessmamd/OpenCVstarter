@@ -1,0 +1,47 @@
+import numpy as np 
+import cv2 
+font = cv2.FONT_ITALIC
+x1 = 0
+y1 = 0
+y2 = 0 
+x2 = 0
+
+def click(event,x ,y, flags, params): 
+    global x1, y1, x2, y2
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print('Mouse Event Was: ', event)
+        x1 = x
+        y1 = y
+    
+    if event == cv2.EVENT_RBUTTONDOWN:
+        x2 = x
+        y2 = y 
+
+camera = cv2.VideoCapture(0)
+cv2.namedWindow("Image")
+cv2.setMouseCallback("Image", click)
+
+while True:
+    tru,frame = camera.read()
+
+    if((x1 != 0) and (y1 != 0)):
+        frame = cv2.circle(frame, (x1,y1), 10, (255,255,0), 2)
+        strr = 'ref point ' + str(x1) + ',' + str(y1)
+        frame = cv2.putText(frame, strr, (x1,y1), font, 1, (255,255,255))
+    
+    if((x2 != 0) and (y2 != 0)):
+        frame = cv2.circle(frame, (x2,y2), 10, (255,0,0), 2)
+        strr = 'ref point ' + str(x2) + ',' + str(y2)
+        frame = cv2.putText(frame, strr, (x2,y2), font, 1, (255,255,255))
+    
+    point1 = np.array((x1,y1))
+    point2 = np.array((x2,y2))
+    distance = np.linalg.norm(point1 - point2)
+    distance_str = 'the distance between: ' + str(distance)
+
+    if ((x2 != 0) and (x1 != 0)):
+        frame = cv2.putText(frame, distance_str, (0, 1000), font, 1, (255,255,255))
+    
+    cv2.imshow("Image", frame)
+    if cv2.waitKey(1) == ord('q'):
+        break
